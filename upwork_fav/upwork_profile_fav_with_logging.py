@@ -2,28 +2,32 @@
 # Change : added client job mapping logic 
 
 import re
-import json 
+import json
 import time as time_module
 import random
-import threading
 import pickle
 import traceback
-from pandas import options
-import pyautogui
+import os
+import sys
+
 import numpy as np
 import mysql.connector
+import pyautogui
+
 from bs4 import BeautifulSoup
 import undetected_chromedriver as uc
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from datetime import datetime,timedelta, timezone,  time as dt_time
-import sys
+
+from datetime import datetime, timedelta, timezone, time as dt_time
+
 from upwork_NUXT import NUXT_function
-import os
+
+sys.stdout.reconfigure(line_buffering=True)
 IS_CI = os.getenv("CI") == "true"
 
 sys.stdout.reconfigure(line_buffering=True)

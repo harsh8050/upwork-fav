@@ -2,29 +2,32 @@
 # Change : added client job mapping logic 
 
 import re
-import json 
+import json
 import time as time_module
 import random
-import threading
 import pickle
 import traceback
-import pyautogui
+import os
+import sys
+
 import numpy as np
 import mysql.connector
+import pyautogui
+
 from bs4 import BeautifulSoup
-from requests import options
 import undetected_chromedriver as uc
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from datetime import datetime,timedelta, timezone,  time as dt_time
+
+from datetime import datetime, timedelta, timezone, time as dt_time
+
 from upwork_NUXT import NUXT_function
-import sys
+
 sys.stdout.reconfigure(line_buffering=True)
-import os
 IS_CI = os.getenv("CI") == "true"
 def cubic_bezier_curve(start, end, control1, control2, t):
     """Generates a point on a cubic Bézier curve"""
