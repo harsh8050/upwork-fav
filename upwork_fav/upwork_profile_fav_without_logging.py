@@ -521,9 +521,9 @@ driver = None
 except_count = 0
 pre_count = 0
 conn = mysql.connector.connect(
-    host="31.97.10.78",
+    host="2.24.198.101",
     user="root",
-    password="Cybercom@123",
+    password="Root@123456",
     database="scrapping"
 )
 print('connection Successfull')
