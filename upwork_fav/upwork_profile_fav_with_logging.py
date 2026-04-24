@@ -604,53 +604,27 @@ conn = mysql.connector.connect(
 
 print('connection Successfull')
 try : 
-    while True :
-        try:
-            now = datetime.now().time()
-            today = datetime.now().date()
-            if not is_driver_alive(driver):
-                # Reinitialize the driver here
-                driver = setup_driver()
-            if not conn.is_connected():
-                conn.reconnect(attempts=3, delay=2)
-            upwork_profiles = 'up_work_profiles'
-            upwork_profile_data = 'upwork_profile_data'
-            upwork_client_info='upwork_client_info'
-            upwork_client_jobs_posted='upwork_client_jobs_posted'
-            # daily_ids = fetch_daily_ids()
-            daily_ids = []
-            if len(daily_ids)>0:
-                print('Daily Update ids : ',len(daily_ids))
-            else : daily_ids = []
-            hourly_ids,profile_last_view_map = fetch_hourly_ids()
-            print('Hourly Update ids :',len(hourly_ids))
-            if len(hourly_ids) == 0 and len(daily_ids) == 0:
-                if is_night_time(now):
-                    print('night')
-                    # driver.quit()
-                    # print('driver closed')
-                    time_module.sleep(random.randint(350,360))
-                    # driver = setup_driver()
-                    # print('driver created')
-                else :
-                    print('Sleeping..')
-                    time_module.sleep(random.randint(100,160))
-            else :
-                upwork_specific(daily_ids)
-            
-            if except_count >= 5:
-                break
-            pre_count = len(hourly_ids) + len(daily_ids)
-            # time_module.sleep(random.randint(200,300))
-        except:
-            except_count += 1
-            if except_count >= 5:
-                break
-            try : 
-                last_run_date = None
-                driver.quit()
-            except : pass
-except : conn.close()
+    now = datetime.now().time()
+    today = datetime.now().date()
+    if not is_driver_alive(driver):
+        # Reinitialize the driver here
+        driver = setup_driver()
+    if not conn.is_connected():
+        conn.reconnect(attempts=3, delay=2)
+    upwork_profiles = 'up_work_profiles'
+    upwork_profile_data = 'upwork_profile_data'
+    upwork_client_info='upwork_client_info'
+    upwork_client_jobs_posted='upwork_client_jobs_posted'
+    # daily_ids = fetch_daily_ids()
+    daily_ids = []
+    if len(daily_ids)>0:
+        print('Daily Update ids : ',len(daily_ids))
+    else : daily_ids = []
+    hourly_ids,profile_last_view_map = fetch_hourly_ids()
+    print('Hourly Update ids :',len(hourly_ids))
+    if len(hourly_ids) > 0 or len(daily_ids) > 0:
+        upwork_specific(daily_ids)
+except : traceback.print_exc()
 
 
 
