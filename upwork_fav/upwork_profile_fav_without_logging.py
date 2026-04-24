@@ -12,6 +12,7 @@ import pyautogui
 import numpy as np
 import mysql.connector
 from bs4 import BeautifulSoup
+from requests import options
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -23,7 +24,8 @@ from datetime import datetime,timedelta, timezone,  time as dt_time
 from upwork_NUXT import NUXT_function
 import sys
 sys.stdout.reconfigure(line_buffering=True)
-
+import os
+IS_CI = os.getenv("CI") == "true"
 def cubic_bezier_curve(start, end, control1, control2, t):
     """Generates a point on a cubic Bézier curve"""
     return ((1 - t) ** 3 * start +
@@ -33,6 +35,8 @@ def cubic_bezier_curve(start, end, control1, control2, t):
 
 # Auto Mouse Moments
 def smooth_human_mouse_movement(min,max):
+    if IS_CI:
+        return
     screen_width, screen_height = pyautogui.size()
 
     for _ in range(random.randint(min,max)):  # Random number of movements
@@ -59,7 +63,6 @@ def smooth_human_mouse_movement(min,max):
 
 
 def setup_driver():
-    chrome_driver_manager = ChromeDriverManager().install()
     options = uc.ChromeOptions()
 
     # 🔧 Browser configuration
@@ -81,6 +84,8 @@ def setup_driver():
     options.add_argument("--disable-ipc-flooding-protection")
     options.add_argument("--enable-features=NetworkService,NetworkServiceInProcess")
     options.add_argument("--disable-renderer-backgrounding")
+    options.add_argument("--headless=new")
+    options.add_argument("--window-size=1920,1080")
 
     # 🎭 Random User-Agent
     user_agents = [
@@ -96,12 +101,7 @@ def setup_driver():
     caps["goog:loggingPrefs"] = {"performance": "ALL"}
 
     # 🚘 Start the driver
-    driver = uc.Chrome(
-        options=options,
-        desired_capabilities=caps,
-        use_subprocess=True,
-        driver_executable_path=chrome_driver_manager
-    )
+    driver = uc.Chrome(options=options)
 
     # 🛑 Block slow third-party domains
     driver.execute_cdp_cmd("Network.enable", {})
@@ -118,7 +118,12 @@ def setup_driver():
     return driver
 
 def driver_get(url):
-    driver.get(url)
+    for i in range(3):
+        try:
+            driver.get(url)
+            break
+        except:
+            time_module.sleep(5)
     try :
         element = driver.title
         count = 1
@@ -132,9 +137,11 @@ def driver_get(url):
                     i += 1
                 test = y + (i * 8)
                 print(test)
-                pyautogui.moveTo(x,test, duration=2) # You need to give position 
-                time_module.sleep(1)
-                pyautogui.click()
+                if not IS_CI:
+                    pyautogui.moveTo(x, test, duration=2)
+                    pyautogui.click()
+                else:
+                    time_module.sleep(2)  # simulate wait instead
                 print('clicked')
                 smooth_human_mouse_movement(1,1)
             except :
@@ -521,10 +528,10 @@ driver = None
 except_count = 0
 pre_count = 0
 conn = mysql.connector.connect(
-    host="2.24.198.101",
-    user="root",
-    password="Root@123456",
-    database="scrapping"
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASS"),
+    database=os.getenv("DB_NAME")
 )
 print('connection Successfull')
 try : 
