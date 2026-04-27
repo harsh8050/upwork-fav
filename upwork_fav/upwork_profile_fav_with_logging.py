@@ -106,7 +106,10 @@ def setup_driver():
     caps["goog:loggingPrefs"] = {"performance": "ALL"}
 
     # 🚘 Start the driver
-    driver = uc.Chrome(options=options)
+    driver = uc.Chrome(
+        options=options,
+        version_main=147   # 👈 IMPORTANT FIX
+    )
 
     # 🛑 Block slow third-party domains
     driver.execute_cdp_cmd("Network.enable", {})
