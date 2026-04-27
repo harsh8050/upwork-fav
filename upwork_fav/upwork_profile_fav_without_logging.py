@@ -29,6 +29,7 @@ from upwork_NUXT import NUXT_function
 
 sys.stdout.reconfigure(line_buffering=True)
 IS_CI = os.getenv("CI") == "true"
+JUST_A_MOMENT_MAX_RETRIES = int(os.getenv("JUST_A_MOMENT_MAX_RETRIES", "10"))
 def cubic_bezier_curve(start, end, control1, control2, t):
     """Generates a point on a cubic Bézier curve"""
     return ((1 - t) ** 3 * start +
@@ -135,6 +136,10 @@ def driver_get(url):
         count = 1
         i = 0
         while "just a moment" in element.lower() :
+            if count > JUST_A_MOMENT_MAX_RETRIES:
+                raise TimeoutError(
+                    f"Cloudflare challenge did not clear after {JUST_A_MOMENT_MAX_RETRIES} retries for {url}"
+                )
             smooth_human_mouse_movement(1,1)
             try:
                 if i % 4 == 0:
@@ -161,6 +166,7 @@ def driver_get(url):
 
     except Exception as e: 
         print(e)
+        raise
     time_module.sleep(2.5)
 
 def convert_to_json(dict_data):
@@ -308,7 +314,7 @@ def format_sql(query, params):
 
 def insert_data(data, id, id_type,profile_last_view_map):
     cursor = None
-    old_last_viewed = profile_last_view_map[id]
+    old_last_viewed = profile_last_view_map.get(id)
     if isinstance(old_last_viewed, str):
         try:
             old_last_viewed = datetime.strptime(old_last_viewed, "%Y-%m-%d %H:%M:%S")
@@ -421,7 +427,11 @@ def execute(id, id_type, profile_last_view_map):
     print('id : ', id)
     url = 'https://www.upwork.com/jobs/~' + id
     time_module.sleep(random.uniform(3, 10))
-    driver_get(url)
+    try:
+        driver_get(url)
+    except Exception as e:
+        print(f"Navigation failed for {id}: {e}")
+        return
     try : 
         nuxt = NUXT_function(driver)
     except : return
@@ -504,7 +514,7 @@ def upwork_specific(daily_ids):
             for index, id in enumerate(daily_ids) : 
                 if index % 10 == 0:
                     priority()
-                execute(id, "daily")
+                execute(id, "daily", profile_last_view_map={})
     except :
         driver.quit()
         print('driver closed')
